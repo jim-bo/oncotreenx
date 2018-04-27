@@ -26,6 +26,16 @@ class TestOncotreenxConstruction:
         # assert we have some nodes.
         assert len(g.nodes()) > 10
 
+    def test_ncit(self):
+
+        # build the tree.
+        g = build_oncotree()
+
+        # spot check several values.
+        g.node['BLOOD']['metanci'] == 'C12434'
+        g.node['PT']['metanci'] == 'C7575'
+
+
 class TestOncotreenxMethods:
 
     g = None
@@ -59,3 +69,4 @@ class TestOncotreenxMethods:
 
         # make sure it is correct.
         assert 'ADRENAL_GLAND' == p
+
