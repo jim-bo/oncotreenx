@@ -2,8 +2,14 @@
 # imports
 import sys
 import os
-import urllib2
 import networkx as nx
+
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
 
 ## constants.
 FILE_URL = "http://oncotree.mskcc.org/api/tumor_types.txt"
@@ -16,9 +22,9 @@ def build_oncotree(file_path=False):
     if not file_path:
 
         # fetch from inter-webs.
-        req = urllib2.Request(FILE_URL)
-        response = urllib2.urlopen(req)
-        the_page = response.read()
+        #req = urllib2.Request(FILE_URL)
+        response = urlopen(FILE_URL)
+        the_page = response.read().decode('utf-8')
 
         # split into array.
         lines = the_page.strip().split("\n")
@@ -26,7 +32,8 @@ def build_oncotree(file_path=False):
     else:
 
         # just open the file.
-        lines = open(file_path, "rb").readlines()
+        with open(file_path, "r") as fin:
+          lines = fin.readlines()
 
     # create a graph.
     g = nx.DiGraph()
@@ -37,48 +44,61 @@ def build_oncotree(file_path=False):
 
     # parse the file.
     line_cnt = 0
+    old_style = False
     for line in lines:
-
-        # skip header.
-        if line_cnt == 0:
-            line_cnt += 1
-            continue
 
         # tokenize.
         tokens = line.strip().split("\t")
-        try:
-            metamaintype = tokens[5]
-        except IndexError:
-            metamaintype = None
-        try:
-            metacolor = tokens[6]
-        except IndexError:
-            metacolor = None
-        try:
-            metanci = tokens[7]
-        except IndexError:
-            metanci = None
-        try:
-            metaumls = tokens[8]
-        except IndexError:
-            metaumls = None
+
+        # skip header.
+        if line_cnt == 0:
+            if len(tokens) == 9:
+              old_style = True
+            line_cnt += 1
+            continue
+    
+        def try_to_set(i, tokens):
+          try:
+            v = tokens[i]
+          except:
+            v = None
+          return v
+
+        # check for version.
+        history = try_to_set(11, tokens)
+        metaumls = try_to_set(10, tokens)
+        metanci = try_to_set(9, tokens)
+        metacolor = try_to_set(8, tokens)
+        metamaintype = try_to_set(7, tokens)
+        level7 = try_to_set(6, tokens)
+        level6 = try_to_set(5, tokens)
+        level5 = try_to_set(4, tokens)
+        level4 = try_to_set(3, tokens)
+        level3 = try_to_set(2, tokens)
+        level2 = try_to_set(1, tokens)
+        level1 = try_to_set(0, tokens)
+
+        if old_style:
+          levels = [level1, level2, level3, level4, level5]
+        else:
+          levels = [level1, level2, level3, level4, level5, level6, level7]
+
+        #print(metanci, metamaintype)
+        #print(levels)
+        #break
 
         # set root node.
         prev_n = root
 
         # build nodes all the way down.
-        for i in range(5):
-
-            # skip empty.
-            if len(tokens) < 2:
-                continue
+        for i in range(0, len(levels)):
 
             # check if empty.
-            if tokens[i] == "":
+            if levels[i] == "":
                 continue
 
             # split into two.
-            tmp = tokens[i].split("(")
+            tmp = levels[i].split("(")
             val = tmp[0].strip().replace('"', '').replace("'", '')
             key = tmp[1].strip().replace("(","").replace(")","").replace('"', '').replace("'", '')
 
@@ -88,7 +108,8 @@ def build_oncotree(file_path=False):
                 metamaintype=metamaintype,
                 metacolor=metacolor,
                 metanci=metanci,
-                metaumls=metaumls
+                metaumls=metaumls,
+                history=history
             )
             n = key
 
