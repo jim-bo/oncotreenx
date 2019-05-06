@@ -56,7 +56,7 @@ def build_oncotree(file_path=False, metamaintype_col=7):
               old_style = True
             line_cnt += 1
             continue
-    
+
         def try_to_set(i, tokens):
           try:
             v = tokens[i]
@@ -155,19 +155,24 @@ def lookup_text(g, text):
 
     else:
         # build lookup dictionary.
-        lu = {}
+        lu = {'MainType': {}}
         for n in g.nodes():
 
             # build the lookup.
             lu[g.node[n]['text']] = n
+            if n != 'root':
+                mainType = g.node[n]['metamaintype']
+                if mainType not in lu['MainType']:
+                    lu['MainType'][mainType] = list()
+                lu['MainType'][mainType].append(g.node[n]['text'])
 
         # save it for re-use.
         g.graph['text_lu'] = lu
 
-    # return result.
-    if text not in lu:
-        return None
-    else:
+    # return result. query Main Type first.
+    if text in lu['MainType']:
+        return lu['MainType'][text]
+    elif text in lu:
         return lu[text]
-
-
+    else:
+        return None
