@@ -1,16 +1,9 @@
 ## imports
-from oncotreenx import build_oncotree, get_basal, lookup_text
+import unittest
+from oncotreenx import build_oncotree, get_basal, name_to_code
 
 ## testing classes
-class TestOncotreenxConstruction:
-
-    @classmethod
-    def setup_class(cls):
-        pass
-
-    @classmethod
-    def teardown_class(cls):
-        pass
+class TestOncotreenxConstruction(unittest.TestCase):
 
     def setup(self):
         pass
@@ -43,41 +36,36 @@ class TestOncotreenxConstruction:
           g = build_oncotree(file_path=x)
 
           # spot check several values.
-          g.node['BLOOD']['metanci'] == 'C12434'
-          g.node['PT']['metanci'] == 'C7575'
+          g.nodes['BLOOD']['metanci'] == 'C12434'
+          g.nodes['PT']['metanci'] == 'C7575'
 
 
-class TestOncotreenxMethods:
+class TestOncotreenxMethods(unittest.TestCase):
 
-    g = None
-
-    @classmethod
-    def setup_class(cls):
-        pass
-
-    @classmethod
-    def teardown_class(cls):
-        pass
-
-    def setup(self):
-        self.g = build_oncotree(file_path="data/tumor_types.txt")
-
-    def teardown(self):
-        pass
 
     def test_get_basal(self):
 
+        # build graph
+        g = build_oncotree(file_path="data/tumor_types.txt")
+
         # get the ancestor.
-        p = get_basal(self.g, "CCHDM")
+        p = get_basal(g, "CCHDM")
 
         # make sure it is correct.
         assert 'BONE' == p
 
-    def test_text_lu(self):
+    def test_name_to_node(self):
+
+        # build graph
+        g = build_oncotree(file_path="data/tumor_types.txt")
 
         # get the ancestor.
-        p = lookup_text(self.g, "Adrenal Gland")
+        for x, y in [\
+            ('Appendiceal Adenocarcinoma', 'APAD'), 
+            ('Encapsulated Glioma', 'ENCG'),
+            ('Adrenal Gland', 'ADRENAL_GLAND')]:
 
-        # make sure it is correct.
-        assert 'ADRENAL_GLAND' == p
+            assert name_to_code(g, x) == y
+
+
 

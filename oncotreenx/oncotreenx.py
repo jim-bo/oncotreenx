@@ -38,6 +38,9 @@ def build_oncotree(file_path=False, metamaintype_col=7):
     # create a graph.
     g = nx.DiGraph()
 
+    # create the lookup
+    g.graph['name2code'] = {}
+
     # add root node.
     g.add_node("root", text="root")
     root = "root"
@@ -83,10 +86,6 @@ def build_oncotree(file_path=False, metamaintype_col=7):
         else:
           levels = [level1, level2, level3, level4, level5, level6, level7]
 
-        #print(metanci, metamaintype)
-        #print(levels)
-        #break
-
         # set root node.
         prev_n = root
 
@@ -111,6 +110,9 @@ def build_oncotree(file_path=False, metamaintype_col=7):
                        metaumls=metaumls,
                        history=history)
             n = key
+
+            # add to lookup
+            g.graph['name2code'][val] = key
 
             # add edge.
             g.add_edge(prev_n, n)
@@ -147,27 +149,13 @@ def get_basal(g, source):
     return hit
 
 
-def lookup_text(g, text):
-
-    # look to see if we have lu.
-    if 'text_lu' in g.graph:
-        lu = g.graph['text_lu']
-
-    else:
-        # build lookup dictionary.
-        lu = {}
-        for n in g.nodes():
-
-            # build the lookup.
-            lu[g.node[n]['text']] = n
-
-        # save it for re-use.
-        g.graph['text_lu'] = lu
+def name_to_code(g, text):
+    ''' translates name to code '''
 
     # return result.
-    if text not in lu:
+    if text not in g.graph['name2code']:
         return None
     else:
-        return lu[text]
+        return g.graph['name2code'][text]
 
 
