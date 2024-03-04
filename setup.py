@@ -6,5 +6,5 @@ setup(name='oncotreenx',
       author_email="jlindsay@jimmy.harvard.edu",
       url="https://github.com/jim-bo/oncotreenx",
       packages=['oncotreenx'],
-      install_requires = ['networkx', 'nose'],
+      install_requires = ['networkx'],
       )
