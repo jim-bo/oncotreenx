@@ -33,7 +33,7 @@ def build_oncotree(file_path=False, metamaintype_col=7):
 
         # just open the file.
         with open(file_path, "r") as fin:
-          lines = fin.readlines()
+            lines = fin.readlines()
 
     # create a graph.
     g = nx.DiGraph()
@@ -45,13 +45,21 @@ def build_oncotree(file_path=False, metamaintype_col=7):
     g.add_node("root", text="root")
     root = "root"
 
+    print("HEY YO")
+
     # parse the file.
     line_cnt = 0
     old_style = False
+
+    in_it = False
     for line in lines:
 
         # tokenize.
         tokens = line.strip().split("\t")
+
+        if line.count("megakaryoblastic") > 0:
+            in_it = True
+            print("--", line)
 
         # skip header.
         if line_cnt == 0:
@@ -97,9 +105,9 @@ def build_oncotree(file_path=False, metamaintype_col=7):
                 continue
 
             # split into two.
-            tmp = levels[i].split("(")
-            val = tmp[0].strip().replace('"', '').replace("'", '')
-            key = tmp[1].strip().replace("(", "").replace(")", "").replace('"', '').replace("'", '')
+            tmp = levels[i].split(" ")
+            val = ' '.join(tmp[0:-1])
+            key = tmp[-1].replace("(", "").replace(")", "")
 
             # build node.
             g.add_node(key,
