@@ -45,8 +45,6 @@ def build_oncotree(file_path=False, metamaintype_col=7):
     g.add_node("root", text="root")
     root = "root"
 
-    print("HEY YO")
-
     # parse the file.
     line_cnt = 0
     old_style = False
@@ -56,10 +54,6 @@ def build_oncotree(file_path=False, metamaintype_col=7):
 
         # tokenize.
         tokens = line.strip().split("\t")
-
-        if line.count("megakaryoblastic") > 0:
-            in_it = True
-            print("--", line)
 
         # skip header.
         if line_cnt == 0:
