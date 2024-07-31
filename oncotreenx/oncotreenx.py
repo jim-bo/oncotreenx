@@ -12,7 +12,7 @@ except ImportError:
     from urllib2 import urlopen
 
 ## constants.
-FILE_URL = "http://oncotree.mskcc.org/api/tumor_types.txt"
+FILE_URL = "http://oncotree.info/api/tumor_types.txt"
 
 ## functions
 
